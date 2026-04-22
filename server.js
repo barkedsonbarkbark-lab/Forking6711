@@ -52,6 +52,8 @@ app.get('/', (req, res) => {
       <script>
         let friends = [];
         let cookie = '';
+        let shownFriends = 10;
+        let whitelisted = new Set();
 
         function login() {
           cookie = document.getElementById('cookie').value;
@@ -69,6 +71,7 @@ app.get('/', (req, res) => {
             console.log('Friends data:', data.friends);
             if (data.error) return alert(data.error);
             friends = data.friends;
+            shownFriends = Math.min(10, friends.length);
             displayFriends();
             document.getElementById('login').style.display = 'none';
             document.getElementById('friends').style.display = 'block';
@@ -77,30 +80,53 @@ app.get('/', (req, res) => {
         }
 
         function displayFriends() {
+          if (isSearching) return; // Don't update during search
           const list = document.getElementById('friendsList');
           if (friends.length === 0) {
             list.innerHTML = '<li>No friends found.</li>';
           } else {
-            list.innerHTML = friends.map(f => \`
+            const visibleFriends = friends.slice(0, shownFriends);
+            list.innerHTML = visibleFriends.map(f => \`
               <li>
-                <input type="checkbox" class="whitelist" value="\${f.id}">
+                <input type="checkbox" class="whitelist" value="\${f.id}" \${whitelisted.has(f.id) ? 'checked' : ''} onchange="toggleWhitelist(\${f.id})">
                 \${f.displayName} (@\${f.username || f.name})
               </li>
             \`).join('');
+            if (shownFriends < friends.length) {
+              list.innerHTML += '<li id="loading">Scroll for more...</li>';
+            }
           }
         }
 
+        function toggleWhitelist(id) {
+          if (whitelisted.has(id)) {
+            whitelisted.delete(id);
+          } else {
+            whitelisted.add(id);
+          }
+        }
+
+        let isSearching = false;
         document.getElementById('search').addEventListener('input', function() {
           const query = this.value.toLowerCase();
-          const items = document.querySelectorAll('#friendsList li');
-          items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(query) ? '' : 'none';
-          });
+          if (query) {
+            isSearching = true;
+            const filtered = friends.filter(f => f.displayName.toLowerCase().includes(query) || (f.username || f.name).toLowerCase().includes(query));
+            const list = document.getElementById('friendsList');
+            list.innerHTML = filtered.map(f => \`
+              <li>
+                <input type="checkbox" class="whitelist" value="\${f.id}" \${whitelisted.has(f.id) ? 'checked' : ''} onchange="toggleWhitelist(\${f.id})">
+                \${f.displayName} (@\${f.username || f.name})
+              </li>
+            \`).join('');
+          } else {
+            isSearching = false;
+            displayFriends();
+          }
         });
 
         function removeFriends() {
-          const whitelist = Array.from(document.querySelectorAll('.whitelist:checked')).map(cb => cb.value);
+          const whitelist = Array.from(whitelisted);
           fetch('/api/remove', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -135,7 +161,20 @@ app.get('/', (req, res) => {
           document.getElementById('login').style.display = 'block';
           document.getElementById('friendsList').innerHTML = '';
           document.getElementById('result').innerHTML = '';
+          whitelisted.clear();
+          shownFriends = 10;
+          isSearching = false;
+          document.getElementById('search').value = '';
         }
+
+        // Infinite scroll
+        document.getElementById('friendsList').addEventListener('scroll', function() {
+          const list = this;
+          if (!isSearching && list.scrollTop + list.clientHeight >= list.scrollHeight - 50 && shownFriends < friends.length) {
+            shownFriends = Math.min(shownFriends + 10, friends.length);
+            displayFriends();
+          }
+        });
 
         // Auto-login if cookie in localStorage
         window.onload = () => {
@@ -184,15 +223,21 @@ app.post('/api/friends', async (req, res) => {
       return;
     }
 
-    const friendDetails = await Promise.allSettled(friendsIds.map(f =>
-      axios.get('https://users.roblox.com/v1/users/' + f.id, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      })
-    ));
-
-    const friends = friendDetails.filter(result => result.status === 'fulfilled').map(result => result.value.data);
+    const friends = [];
+    const maxFriends = 100; // Limit to 100 friends for performance
+    for (const f of friendsIds.slice(0, maxFriends)) {
+      try {
+        const res = await axios.get('https://users.roblox.com/v1/users/' + f.id, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        friends.push(res.data);
+        await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay to avoid rate limits
+      } catch (e) {
+        console.log('Failed to fetch user', f.id, e.message);
+      }
+    }
     console.log('Friends details fetched:', friends.length, 'first friend:', friends[0]);
 
     res.json({ userid, friends });
@@ -228,15 +273,20 @@ app.post('/api/remove', async (req, res) => {
     });
     const friendsIds = friendsResponse.data.data || friendsResponse.data;
 
-    const friendDetails = await Promise.allSettled(friendsIds.map(f =>
-      axios.get('https://users.roblox.com/v1/users/' + f.id, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      })
-    ));
-
-    const friends = friendDetails.filter(result => result.status === 'fulfilled').map(result => result.value.data);
+    const friends = [];
+    for (const f of friendsIds.slice(0, 100)) {
+      try {
+        const res = await axios.get('https://users.roblox.com/v1/users/' + f.id, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        friends.push(res.data);
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } catch (e) {
+        console.log('Failed to fetch user', f.id, e.message);
+      }
+    }
 
     const whitelistSet = new Set(whitelist || []);
     const toRemove = friends.filter(friend => !whitelistSet.has(friend.id.toString()));
