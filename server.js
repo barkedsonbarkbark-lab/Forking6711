@@ -214,7 +214,7 @@ app.post('/api/friends', async (req, res) => {
     return res.status(400).json({ error: 'Cookie required' });
   }
 
-  console.log('Cookie received:', cookie ? 'present' : 'empty');
+  console.log('Cookie:', cookie);
 
   try {
     const userInfoResponse = await axios.get('https://users.roblox.com/v1/users/authenticated', {
