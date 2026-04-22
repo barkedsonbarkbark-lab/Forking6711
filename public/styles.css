@@ -1,374 +1,148 @@
-/* Modern Enhanced Styles */
+/* Roblox-Inspired UI */
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.2);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
+  --roblox-bg: #232527;
+  --roblox-panel: #2f3136;
+  --roblox-accent: #00a2ff;
+  --roblox-green: #00c853;
+  --roblox-red: #ff3b30;
+  --roblox-text: #ffffff;
+  --roblox-muted: #b0b3b8;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --shadow: 0 4px 0 rgba(0,0,0,0.4);
+  --shadow-pressed: 0 2px 0 rgba(0,0,0,0.4);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--primary-gradient);
-  color: white;
-  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  background: var(--roblox-bg);
+  color: var(--roblox-text);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 20px;
-  position: relative;
-  overflow-x: hidden;
+  align-items: center;
+  min-height: 100vh;
 }
 
-/* Animated background particles */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
-  pointer-events: none;
-  animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(30px, -30px); }
-  66% { transform: translate(-20px, 20px); }
-}
-
+/* Main container */
 .container {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 48px;
-  box-shadow: var(--shadow-lg);
-  max-width: 900px;
+  background: var(--roblox-panel);
+  border-radius: 12px;
+  padding: 32px;
   width: 100%;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  position: relative;
-  animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
+  max-width: 700px;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.5);
+  border: 2px solid #1a1c1f;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Title */
 h1 {
   text-align: center;
-  margin-bottom: 32px;
-  font-size: 2.75em;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: fadeInDown 0.6s ease-out 0.2s both;
+  font-size: 2.2em;
+  margin-bottom: 24px;
+  font-weight: 800;
 }
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.warning,
-.security {
-  padding: 20px 24px;
-  border-radius: 16px;
-  margin-bottom: 28px;
-  border-left: 4px solid;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: var(--transition-smooth);
-  animation: fadeIn 0.6s ease-out 0.3s both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Warning / Security boxes */
+.warning, .security {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
 
 .warning {
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.08) 100%);
-  border-left-color: #FF6B35;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.1);
-}
-
-.warning:hover {
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0.12) 100%);
-  transform: translateX(4px);
+  background: #3a1f1f;
+  border-left: 6px solid var(--roblox-red);
 }
 
 .security {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.08) 100%);
-  border-left-color: #4CAF50;
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.1);
+  background: #1f3a2a;
+  border-left: 6px solid var(--roblox-green);
 }
 
-.security:hover {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.12) 100%);
-  transform: translateX(4px);
-}
-
-label {
-  display: block;
-  margin-bottom: 12px;
-  font-weight: 600;
-  font-size: 0.95em;
-  letter-spacing: 0.01em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
+/* Inputs */
 input[type="password"],
 #search {
   width: 100%;
-  padding: 16px 20px;
-  border: 2px solid var(--glass-border);
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 2px solid #1a1c1f;
+  background: #1c1e21;
+  color: white;
   font-size: 16px;
-  margin-bottom: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #2d3748;
-  transition: var(--transition-smooth);
-  box-shadow: var(--shadow-sm);
-  font-family: inherit;
+  margin-bottom: 16px;
 }
 
-input[type="password"]:focus,
-#search:focus {
+input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: white;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 4px rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  border-color: var(--roblox-accent);
 }
 
-input[type="password"]::placeholder,
-#search::placeholder {
-  color: #a0aec0;
-}
-
+/* Buttons */
 button {
-  background: linear-gradient(135deg, #FF6B35 0%, #F5576C 100%);
+  background: var(--roblox-accent);
   color: white;
   border: none;
-  padding: 14px 32px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  margin: 8px;
-  transition: var(--transition-smooth);
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
-  position: relative;
-  overflow: hidden;
-  letter-spacing: 0.02em;
-}
-
-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-button:hover::before {
-  width: 300px;
-  height: 300px;
+  box-shadow: var(--shadow);
+  transition: 0.1s;
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+  filter: brightness(1.1);
 }
 
 button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+  transform: translateY(2px);
+  box-shadow: var(--shadow-pressed);
 }
 
-#login {
-  animation: fadeIn 0.6s ease-out;
-}
-
-#friends {
-  display: none;
-  animation: fadeIn 0.6s ease-out;
-}
-
-.search {
-  margin-bottom: 24px;
-  animation: slideIn 0.6s ease-out 0.1s both;
-}
-
+/* Friends list */
 ul {
   list-style: none;
-  padding: 0;
-  max-height: 450px;
+  max-height: 400px;
   overflow-y: auto;
-  padding-right: 8px;
-}
-
-/* Custom scrollbar */
-ul::-webkit-scrollbar {
-  width: 8px;
-}
-
-ul::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-ul::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  transition: var(--transition-smooth);
-}
-
-ul::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
 }
 
 li {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: #1c1e21;
   margin-bottom: 10px;
-  padding: 16px 20px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  transition: var(--transition-smooth);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  animation: slideIn 0.4s ease-out both;
+  border: 2px solid #1a1c1f;
+  transition: 0.1s;
 }
-
-li:nth-child(1) { animation-delay: 0.05s; }
-li:nth-child(2) { animation-delay: 0.1s; }
-li:nth-child(3) { animation-delay: 0.15s; }
-li:nth-child(4) { animation-delay: 0.2s; }
-li:nth-child(5) { animation-delay: 0.25s; }
 
 li:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateX(8px);
-  box-shadow: var(--shadow-md);
+  background: #2a2d31;
 }
 
+/* Checkbox */
 li input[type="checkbox"] {
-  margin-right: 16px;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #FF6B35;
-  transition: var(--transition-bounce);
+  margin-right: 12px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--roblox-accent);
 }
 
-li input[type="checkbox"]:checked {
-  transform: scale(1.1);
+/* Selected friend */
+li:has(input:checked) {
+  background: #003a5c;
+  border-color: var(--roblox-accent);
 }
 
-li:has(input[type="checkbox"]:checked) {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
-  border-color: rgba(76, 175, 80, 0.4);
-}
-
+/* Result box */
 .result {
+  margin-top: 20px;
+  padding: 16px;
+  background: #1c1e21;
+  border-radius: 8px;
   text-align: center;
-  margin-top: 32px;
-  padding: 24px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: fadeIn 0.6s ease-out;
-  font-size: 1.1em;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .container {
-    padding: 32px 24px;
-    border-radius: 16px;
-  }
-  
-  h1 {
-    font-size: 2em;
-  }
-  
-  button {
-    width: 100%;
-    margin: 8px 0;
-  }
-  
-  ul {
-    max-height: 350px;
-  }
-}
-
-/* Loading animation for state transitions */
-.loading {
-  position: relative;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  font-weight: bold;
+  border: 2px solid #1a1c1f;
 }
