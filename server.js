@@ -43,6 +43,10 @@ app.get('/', (req, res) => {
           <div class="search">
             <input type="text" id="search" placeholder="Search friends...">
           </div>
+          <div style="margin-bottom: 10px;">
+            <input type="text" id="whitelistInput" placeholder="Enter usernames to whitelist (comma-separated)" style="width: 70%; padding: 8px;">
+            <button onclick="whitelistByUsername()" style="padding: 8px;">Whitelist</button>
+          </div>
           <ul id="friendsList"></ul>
           <button onclick="removeFriends()">Remove Unchecked Friends</button>
           <div class="result" id="result"></div>
@@ -70,7 +74,8 @@ app.get('/', (req, res) => {
           .then(data => {
             console.log('Friends data:', data.friends);
             if (data.error) return alert(data.error);
-            friends = data.friends;
+            friends = data.friends || [];
+            console.log('Login successful, friends count:', friends.length);
             shownFriends = Math.min(10, friends.length);
             displayFriends();
             document.getElementById('login').style.display = 'none';
@@ -80,18 +85,14 @@ app.get('/', (req, res) => {
         }
 
         function displayFriends() {
+          console.log('Displaying friends, isSearching:', isSearching, 'shownFriends:', shownFriends, 'total:', friends.length);
           if (isSearching) return; // Don't update during search
           const list = document.getElementById('friendsList');
           if (friends.length === 0) {
             list.innerHTML = '<li>No friends found.</li>';
           } else {
             const visibleFriends = friends.slice(0, shownFriends);
-            list.innerHTML = visibleFriends.map(f => \`
-              <li>
-                <input type="checkbox" class="whitelist" value="\${f.id}" \${whitelisted.has(f.id) ? 'checked' : ''} onchange="toggleWhitelist(\${f.id})">
-                \${f.displayName} (@\${f.username || f.name})
-              </li>
-            \`).join('');
+            list.innerHTML = visibleFriends.map(f => '<li><input type="checkbox" class="whitelist" value="' + f.id + '" ' + (whitelisted.has(f.id) ? 'checked' : '') + ' onchange="toggleWhitelist(' + f.id + ')">' + f.displayName + ' (@' + (f.username || f.name) + ')</li>').join('');
             if (shownFriends < friends.length) {
               list.innerHTML += '<li id="loading">Scroll for more...</li>';
             }
@@ -106,6 +107,27 @@ app.get('/', (req, res) => {
           }
         }
 
+        function whitelistByUsername() {
+          const input = document.getElementById('whitelistInput').value.trim();
+          if (!input) return;
+          const usernames = input.split(',').map(u => u.trim().toLowerCase()).filter(u => u);
+          let added = 0;
+          usernames.forEach(u => {
+            const friend = friends.find(f => (f.username || f.name).toLowerCase() === u);
+            if (friend && !whitelisted.has(friend.id)) {
+              whitelisted.add(friend.id);
+              added++;
+            }
+          });
+          if (added > 0) {
+            displayFriends();
+            alert('Whitelisted ' + added + ' user(s)');
+          } else {
+            alert('No matching usernames found');
+          }
+          document.getElementById('whitelistInput').value = '';
+        }
+
         let isSearching = false;
         document.getElementById('search').addEventListener('input', function() {
           const query = this.value.toLowerCase();
@@ -113,12 +135,7 @@ app.get('/', (req, res) => {
             isSearching = true;
             const filtered = friends.filter(f => f.displayName.toLowerCase().includes(query) || (f.username || f.name).toLowerCase().includes(query));
             const list = document.getElementById('friendsList');
-            list.innerHTML = filtered.map(f => \`
-              <li>
-                <input type="checkbox" class="whitelist" value="\${f.id}" \${whitelisted.has(f.id) ? 'checked' : ''} onchange="toggleWhitelist(\${f.id})">
-                \${f.displayName} (@\${f.username || f.name})
-              </li>
-            \`).join('');
+            list.innerHTML = filtered.map(f => '<li><input type="checkbox" class="whitelist" value="' + f.id + '" ' + (whitelisted.has(f.id) ? 'checked' : '') + ' onchange="toggleWhitelist(' + f.id + ')">' + f.displayName + ' (@' + (f.username || f.name) + ')</li>').join('');
           } else {
             isSearching = false;
             displayFriends();
