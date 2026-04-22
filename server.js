@@ -184,7 +184,7 @@ app.post('/api/friends', async (req, res) => {
       return;
     }
 
-    const friendDetails = await Promise.all(friendsIds.map(f =>
+    const friendDetails = await Promise.allSettled(friendsIds.map(f =>
       axios.get('https://users.roblox.com/v1/users/' + f.id, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -192,7 +192,7 @@ app.post('/api/friends', async (req, res) => {
       })
     ));
 
-    const friends = friendDetails.map(res => res.data);
+    const friends = friendDetails.filter(result => result.status === 'fulfilled').map(result => result.value.data);
     console.log('Friends details fetched:', friends.length, 'first friend:', friends[0]);
 
     res.json({ userid, friends });
@@ -228,7 +228,7 @@ app.post('/api/remove', async (req, res) => {
     });
     const friendsIds = friendsResponse.data.data || friendsResponse.data;
 
-    const friendDetails = await Promise.all(friendsIds.map(f =>
+    const friendDetails = await Promise.allSettled(friendsIds.map(f =>
       axios.get('https://users.roblox.com/v1/users/' + f.id, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -236,7 +236,7 @@ app.post('/api/remove', async (req, res) => {
       })
     ));
 
-    const friends = friendDetails.map(res => res.data);
+    const friends = friendDetails.filter(result => result.status === 'fulfilled').map(result => result.value.data);
 
     const whitelistSet = new Set(whitelist || []);
     const toRemove = friends.filter(friend => !whitelistSet.has(friend.id.toString()));
